@@ -11,7 +11,7 @@
 // returns to the same spot.
 //
 // Where the mapping is not well defined (two or more monitors along the same
-// side), the functions return nullopt and Hyprland's normal behaviour applies.
+// side), the functions return nullopt and Hyprland's normal behavior applies.
 
 #pragma once
 
@@ -40,8 +40,8 @@ namespace hypredge {
     inline constexpr double LANDING_INSET = 1.0;
 
     // Which side of a monitor another monitor touches.
-    //   axis 0: left/right neighbour (crossing a vertical edge)
-    //   axis 1: top/bottom neighbour (crossing a horizontal edge)
+    //   axis 0: left/right neighbor (crossing a vertical edge)
+    //   axis 1: top/bottom neighbor (crossing a horizontal edge)
     //   dir +1: right/below, -1: left/above
     struct SSide {
         int  axis = 0;
@@ -81,7 +81,7 @@ namespace hypredge {
     }
 
     // Number of monitors in `all` (other than all[self]) touching all[self] on `side`.
-    inline int neighboursOnSide(const std::vector<CBox>& all, size_t self, const SSide& side) {
+    inline int neighborsOnSide(const std::vector<CBox>& all, size_t self, const SSide& side) {
         int count = 0;
         for (size_t i = 0; i < all.size(); ++i) {
             if (i != self && sharedSide(all[self], all[i]) == side)
@@ -90,15 +90,15 @@ namespace hypredge {
         return count;
     }
 
-    // True when all[a] and all[b] are each other's only neighbour on the sides
+    // True when all[a] and all[b] are each other's only neighbor on the sides
     // they share, i.e. a 1:1 proportional mapping between them is well defined.
     inline std::optional<SSide> exclusivePair(const std::vector<CBox>& all, size_t a, size_t b) {
         const auto SIDE = sharedSide(all[a], all[b]);
         if (!SIDE)
             return std::nullopt;
-        if (neighboursOnSide(all, a, *SIDE) != 1)
+        if (neighborsOnSide(all, a, *SIDE) != 1)
             return std::nullopt;
-        if (neighboursOnSide(all, b, SSide{SIDE->axis, -SIDE->dir}) != 1)
+        if (neighborsOnSide(all, b, SSide{SIDE->axis, -SIDE->dir}) != 1)
             return std::nullopt;
         return SIDE;
     }

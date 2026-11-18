@@ -1,4 +1,4 @@
-// hypredge — proportional pointer mapping between neighbouring monitors.
+// hypredge — proportional pointer mapping between neighboring monitors.
 //
 // Hyprland moves the pointer between monitors 1:1 in layout coordinates, so
 // when two side-by-side monitors have different heights, part of the taller
@@ -7,14 +7,14 @@
 //
 // Movement — hypredge hooks Pointer::CPointerManager::move and, after
 // Hyprland has applied each relative pointer motion:
-//   * if the pointer crossed onto a neighbouring monitor, it corrects the
+//   * if the pointer crossed onto a neighboring monitor, it corrects the
 //     position along the shared edge so it lands at the same RELATIVE spot
 //     (e.g. 75% down the right monitor -> 75% down the left monitor);
 //   * if the motion was swallowed at a dead end, it moves the pointer onto the
-//     neighbour at the proportional spot.
+//     neighbor at the proportional spot.
 //
 // Drawing — while the pointer sits on a border, part of the cursor image
-// overhangs onto the neighbour. Hyprland draws that part at the same absolute
+// overhangs onto the neighbor. Hyprland draws that part at the same absolute
 // position; hypredge shifts it to the proportional spot, for both hardware
 // cursors (getCursorPosForMonitor) and software cursors (the per-monitor box
 // set by onCursorMoved / updateCursorBackend, redrawn via damageIfSoftware).
@@ -172,7 +172,7 @@ namespace {
         std::optional<Vector2D> target;
 
         if (*FROM != *TO) {
-            // Crossed onto a neighbour: land at the same relative spot.
+            // Crossed onto a neighbor: land at the same relative spot.
             target = hypredge::crossingTarget(boxes, *FROM, *TO, AFTER, INSET);
         } else {
             // Same monitor: was the push swallowed at an edge? Keep only the
@@ -375,7 +375,7 @@ APICALL EXPORT PLUGIN_DESCRIPTION_INFO PLUGIN_INIT(HANDLE handle) {
                                      CHyprColor{1.0, 0.7, 0.2, 1.0}, 8000);
     }
 
-    return {"hypredge", "Proportional pointer mapping between neighbouring monitors", "OceanProgramming", "0.3.1"};
+    return {"hypredge", "Proportional pointer mapping between neighboring monitors", "OceanProgramming", "0.3.1"};
 }
 
 APICALL EXPORT void PLUGIN_EXIT() {

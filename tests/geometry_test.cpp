@@ -92,9 +92,9 @@ int main() {
 
     // ── Ambiguous: two monitors stacked along the same side -> no remapping.
     const std::vector<CBox> THREE{CBox{{0.0, 0.0}, {1000.0, 2000.0}}, CBox{{1000.0, 0.0}, {800.0, 900.0}}, CBox{{1000.0, 1000.0}, {800.0, 1000.0}}};
-    expect("two neighbours on one side: crossing left untouched", //
+    expect("two neighbors on one side: crossing left untouched", //
            crossingTarget(THREE, 0, 1, {1001.0, 500.0}, I), std::nullopt);
-    expect("two neighbours on one side: dead end left untouched", //
+    expect("two neighbors on one side: dead end left untouched", //
            deadEndTarget(THREE, 0, {1000.0, 950.0}, {1002.0, 950.0}, T, I), std::nullopt);
 
     // ── Layout defects stay hard walls.

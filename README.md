@@ -1,84 +1,40 @@
 # hypredge
 
-Proportional pointer movement between neighbouring monitors for Hyprland.
+Proportional pointer movement between neighboring monitors for Hyprland.
 
-Hyprland moves the pointer between monitors 1:1 in layout pixels. With two
-side-by-side monitors of different heights, that means:
-
-- part of the taller monitor's shared edge is a **dead end**: the pointer
-  cannot cross there;
-- crossings land at the same **absolute** height, not the same **relative**
-  height.
-
-hypredge maps the whole shared side of one monitor onto the whole side of the
-other by relative position:
+Hyprland moves the mouse between monitors by absolute position. With two
+monitors of the same physical size but different resolutions, part of the
+higher-resolution monitor's edge becomes a dead end for the mouse unless you
+change your scaling. hypredge maps the whole edge of one monitor onto the
+whole edge of the other by relative position instead:
 
 ```
-  left 1920x1200          right 2560x1440
-┌──────────────┐┌──────────────────────┐
-│  0%  ◄───────┼┼────────►  0%          │
-│ 50%  ◄───────┼┼────────► 50%          │
-│100%  ◄───────┼┼────────►              │
-└──────────────┘│                100%   │
-                └──────────────────────┘
+      left 1920x1200          right 2560x1440
+┌───────────────────────┐┌───────────────────────┐
+│    0%  ◄──────────────┼┼──────────────►    0%  │
+│                       ││                       │
+│   50%  ◄──────────────┼┼──────────────►   50%  │
+│                       ││                       │
+│  100%  ◄──────────────┼┼──────────────►  100%  │
+└───────────────────────┘└───────────────────────┘
 ```
 
-Leaving the right monitor 75% of the way down lands 75% of the way down the
-left one and vice versa: no dead ends, and a round trip returns to the same
-spot. Stacked (top/bottom) monitors are mapped the same way along x.
+No dead ends and a round trip returns to the same spot.
 
-## Behaviour
+## Behavior
 
-- Applies only to relative pointer motion (mouse, touchpad). Warps such as
-  `hyprctl dispatch movecursor` and tablets are untouched.
-- Skipped while a client constrains the pointer (games with a locked/confined
-  pointer) or an input-capture session is active.
-- Only applies where a monitor has exactly one neighbour on that side, and that
-  neighbour has exactly one on the opposite side. With several monitors along
-  one side, Hyprland's normal behaviour is kept.
-- Gaps between monitors and corner-only contact stay hard walls.
-- Respects `cursor:hotspot_padding`.
+- Mouse and touchpad only (tablets and `hyprctl` warps are not affected)
+- Skipped while a game locks the pointer
+- Only between monitors that are each other's only neighbor on that side;
+  otherwise Hyprland's normal behavior applies
+- Limits: the cursor image isn't drawn across the border while the pointer is
+  in a dead-end strip and rotated monitors keep Hyprland's normal cursor
+  drawing. If you have a rotated setup and want to fix this, feel free to
+  contribute.
 
-### Cursor drawing across the border
+## Build and load
 
-While the pointer sits on a border, part of the cursor image overhangs onto
-the neighbour. Hyprland draws that part at the same absolute position, which no
-longer matches the proportional mapping; hypredge draws it at the proportional
-spot instead, for hardware and software cursors.
-
-If these hooks cannot be installed, hypredge shows an orange notification and
-keeps only the movement mapping.
-
-Known limits:
-
-- Hyprland decides which monitors draw the cursor from its unmapped position,
-  so while the pointer is in a dead-end strip (e.g. the bottom of the taller
-  monitor) the overhang is not drawn on the neighbour.
-- Rotated or flipped monitors keep Hyprland's normal cursor drawing.
-
-## How fragile is this?
-
-The movement mapping hooks one public function. The cursor drawing hooks four
-**private** Hyprland internals (`getCursorPosForMonitor`, `onCursorMoved`,
-`updateCursorBackend`, `damageIfSoftware`), writes the private per-monitor
-software cursor box, and mirrors the conditions of `damageIfSoftware`. This was
-verified against Hyprland 0.56.2's source and binary (including that these
-functions are not inlined at any call site).
-
-The plugin refuses to load against a Hyprland build other than the one it was
-compiled for, but after rebuilding for a new Hyprland version **check the
-cursor drawing by eye**: slowly move the cursor along a border and look for a
-flickering or stuck half.
-
-## Requirements
-
-- Hyprland with development headers. The plugin is tied to the exact Hyprland
-  build it was compiled against: rebuild after every Hyprland update. It
-  refuses to load against a different build.
-- `g++`, `make`, `pkg-config`, and the `hyprutils`, `pixman`, `libdrm` and
-  `libei` headers (all pulled in by Hyprland on Arch).
-
-## Build, test, load
+Needs Hyprland's development headers, `g++`, `make` and `pkg-config`.
 
 ```sh
 make test     # geometry tests, no Hyprland needed
@@ -87,27 +43,17 @@ make load     # (re)load into the running Hyprland
 make unload   # unload it
 ```
 
-`make load` loads a uniquely named copy from `build/loaded/`: the dynamic
-loader would otherwise keep reusing an old build loaded from the same path.
-`make unload` deletes that copy again.
-
-## Load at login (Omarchy, Lua config)
-
-In `~/.config/hypr/autostart.lua`:
+To load at login (Omarchy), add this to `~/.config/hypr/autostart.lua`:
 
 ```lua
 o.exec_on_start("hyprctl plugin load " .. os.getenv("HOME") .. "/Work/hypredge/build/hypredge.so")
 ```
 
-After a Hyprland update, run `make clean && make` and log in again (or
-`make load`).
+## After a Hyprland update
 
-## Layout of the code
-
-- `src/geometry.hpp` — all the math, free of Hyprland, unit-tested.
-- `src/main.cpp` — the Hyprland hooks (movement and cursor drawing).
-- `tests/geometry_test.cpp` — synthetic layouts, including the 1920x1200 +
-  2560x1440 desk this was written for.
+The plugin only loads into the exact Hyprland build it was compiled against,
+so rebuild with `make clean && make`. I try to keep it up to date, but there's
+no guarantee it works after an update.
 
 ## License
 
