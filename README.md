@@ -108,3 +108,7 @@ After a Hyprland update, run `make clean && make` and log in again (or
 - `src/main.cpp` — the Hyprland hooks (movement and cursor drawing).
 - `tests/geometry_test.cpp` — synthetic layouts, including the 1920x1200 +
   2560x1440 desk this was written for.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
